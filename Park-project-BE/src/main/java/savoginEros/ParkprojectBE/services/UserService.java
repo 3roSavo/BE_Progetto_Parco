@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import savoginEros.ParkprojectBE.entities.Role;
 import savoginEros.ParkprojectBE.entities.User;
+import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
@@ -23,6 +24,10 @@ public class UserService {
     }
 
     public User saveUser(NewUserDTO newUser) {
+
+        if (usersDAO.findByEmail(newUser.email()).isPresent()) {
+            throw new BadRequestException("La email " + newUser.email() + " è già presente nel database! Cambiala per favore");
+        }
 
         User user = new User(
                 newUser.userName(),

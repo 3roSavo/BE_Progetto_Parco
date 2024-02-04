@@ -29,15 +29,18 @@ public class AuthController {
     public LoginResponseDTO login(@RequestBody @Validated NewLoginDTO loginDTO, BindingResult validation) {
 
         if (validation.hasErrors()) {
-            //System.out.println(validation.getAllErrors());
-            throw new BadRequestException(
-                            "Ci sono errori nel payload :"
-                            + System.lineSeparator()
-                           + validation.
-                                getAllErrors()
-                                .stream()
-                                .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.joining(System.lineSeparator())));
+
+            System.out.println(validation.getAllErrors());
+
+            throw new BadRequestException("Ci sono errori nel payload :"
+                    + System.lineSeparator()
+                    + validation.
+                    getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.joining(System.lineSeparator()))
+            );
+
         } else {
             return new LoginResponseDTO(authService.userAuthenticate(loginDTO));
         }
@@ -45,9 +48,26 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public User saveUser(@RequestBody NewUserDTO newUser) {
-        return userService.saveUser(newUser);
-    }
+    public User saveUser(@RequestBody @Validated NewUserDTO newUser, BindingResult validation) {
 
+        if (validation.hasErrors()) {
+
+            System.out.println(validation.getAllErrors());
+
+            throw new BadRequestException("Ci sono errori nel payload :"
+                    + System.lineSeparator()
+                    + validation.getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.joining(System.lineSeparator()))
+            );
+
+        } else {
+
+        return userService.saveUser(newUser);
+
+        }
+
+    }
 
 }

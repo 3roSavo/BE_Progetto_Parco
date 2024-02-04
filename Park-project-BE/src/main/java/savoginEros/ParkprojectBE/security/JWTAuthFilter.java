@@ -48,7 +48,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     user,
                     null
-            );
+            ); // manca il terzo parametro per authorization
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
