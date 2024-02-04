@@ -1,9 +1,6 @@
 package savoginEros.ParkprojectBE.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +27,19 @@ public class User {
 
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @ManyToMany(mappedBy = "userSet")
     private Set<Hike> favoriteHikesSet;
+
+
+    // COSTRUTTORE
+
+    public User(String userName, String email, String password, Role role) {
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 }
