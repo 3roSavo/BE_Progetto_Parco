@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 public record NewUserDTO(
         @NotEmpty(message = "Lo userName è obbligatorio")
-        String userName,
+        String username,
         @NotEmpty(message = "La email è obbligatoria")
         @Email(message = "Il formato della email non è valido")
         String email,
