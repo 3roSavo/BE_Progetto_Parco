@@ -2,8 +2,10 @@ package savoginEros.ParkprojectBE.payloads.users;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import savoginEros.ParkprojectBE.urlValidation.ValidUrl;
 
 public record NewUserDTO(
+        @ValidUrl(message = "URL fornito non valido")
         String userIcon,
         @NotBlank(message = "Lo username è obbligatorio")
         String username,

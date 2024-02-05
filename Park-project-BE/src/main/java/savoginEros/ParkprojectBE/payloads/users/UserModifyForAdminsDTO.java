@@ -6,8 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import savoginEros.ParkprojectBE.entities.Role;
+import savoginEros.ParkprojectBE.urlValidation.ValidUrl;
 
 public record UserModifyForAdminsDTO(
+        @ValidUrl(message = "URL fornito non valido")
         String userIcon,
         @NotBlank(message = "Lo username è obbligatorio")
         String username,
