@@ -6,8 +6,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import savoginEros.ParkprojectBE.entities.User;
-import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
+import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
+import savoginEros.ParkprojectBE.payloads.users.UserModifyForUsersDTO;
+import savoginEros.ParkprojectBE.repositories.UsersDAO;
 import savoginEros.ParkprojectBE.services.UserService;
 
 import java.util.List;
@@ -19,7 +21,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // METODI
+    @Autowired
+    private UsersDAO usersDAO;
+
+    // METODI CRUD
 
     /*@GetMapping("/{userId}")        // sostituita da /me
     public User getUserById(@PathVariable long userId) {
@@ -28,14 +33,32 @@ public class UserController {
 
     // /me per get del proprio profilo
     @GetMapping("/me")
-    public User getProfile(@AuthenticationPrincipal User user) {
+    public User getMeProfile(@AuthenticationPrincipal User user) {
         return user;
     }
 
     // /me per put
+    @PutMapping("/me")
+    public User modifyMeProfile(@AuthenticationPrincipal User user, @RequestBody UserModifyForUsersDTO userDTO) {
+
+        if (usersDAO.findByEmail(userDTO.email()).isPresent()) {
+            throw new BadRequestException("La email " + userDTO.email() + " è già presente nel DB");
+        }
+
+        user.setUserIcon(userDTO.userIcon());
+        user.setUsername(userDTO.username());
+        user.setEmail(userDTO.email());
+        user.setPassword(userDTO.password());
+
+        return usersDAO.save(user);
+    }
 
     // /me per delete
-
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMeUser(@AuthenticationPrincipal User user) {
+        userService.deleteUser(user.getId());
+    }
 
 
 

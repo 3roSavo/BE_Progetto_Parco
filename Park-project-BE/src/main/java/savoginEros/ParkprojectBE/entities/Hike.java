@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public class Hike {
     @Setter(AccessLevel.NONE)
     private long id;
 
-    private List<String> urlImagesList;
+    private List<String> urlImagesList = new ArrayList<>();
 
     private String title;
 
@@ -43,4 +44,21 @@ public class Hike {
     inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> userSet;
 
+    public Hike(
+            String title,
+            String description,
+            String duration,
+            double length,
+            int elevationGain,
+            int trailNumber,
+            Difficulty difficulty) {
+
+        this.title = title;
+        this.description = description;
+        this.duration = duration;
+        this.length = length;
+        this.elevationGain = elevationGain;
+        this.trailNumber = trailNumber;
+        this.difficulty = difficulty;
+    }
 }
