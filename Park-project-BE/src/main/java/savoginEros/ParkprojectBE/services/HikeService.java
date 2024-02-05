@@ -59,7 +59,9 @@ public class HikeService {
         hike.setTrailNumber(hikeDTO.trailNumber());
         hike.setDifficulty(hikeDTO.difficulty());
 
-        hikeDTO.urlImagesList().forEach(urlImage -> hike.getUrlImagesList().add(urlImage));
+        if (hikeDTO.urlImagesList() != null) {
+            hikeDTO.urlImagesList().forEach(urlImage -> hike.getUrlImagesList().add(urlImage));
+        }
 
         return hikesDAO.save(hike);
     }

@@ -36,6 +36,10 @@ public class UserService {
                 newUser.password(),
                 Role.USER);
 
+        if (newUser.userIcon() != null) {
+            user.setUserIcon(newUser.userIcon());
+        }
+
         return usersDAO.save(user);
     }
 
@@ -56,7 +60,11 @@ public class UserService {
 
         User user = getUserById(userId);
 
-        user.setUserIcon(userDTO.userIcon());
+
+        if (userDTO.userIcon() != null) {
+            user.setUserIcon(userDTO.userIcon());
+        }
+
         user.setUsername(userDTO.username());
         user.setEmail(userDTO.email());
         user.setPassword(userDTO.password());

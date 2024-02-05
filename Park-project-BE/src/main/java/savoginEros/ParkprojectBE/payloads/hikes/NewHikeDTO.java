@@ -2,6 +2,8 @@ package savoginEros.ParkprojectBE.payloads.hikes;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import savoginEros.ParkprojectBE.entities.Difficulty;
@@ -11,11 +13,11 @@ import java.util.List;
 
 public record NewHikeDTO(
         List<String> urlImagesList,
-        @NotEmpty(message = "Il titolo è obbligatorio")
+        @NotBlank(message = "Il titolo è obbligatorio")
         String title,
-        @NotEmpty(message = "La descrizione è obbligatoria")
+        @NotBlank(message = "La descrizione è obbligatoria")
         String description,
-        @NotEmpty(message = "La durata è obbligatoria")
+        @NotBlank(message = "La durata è obbligatoria")
         String duration,
         @NotNull(message = "La lunghezza è obbligatoria")
         double length,
@@ -23,7 +25,17 @@ public record NewHikeDTO(
         int elevationGain,
         @NotNull(message = "Il numero del percorso è obbligatorio")
         int trailNumber,
-        @NotNull(message = "La difficoltà è obbligatoria")
+        @NotBlank(message = "La difficoltà è obbligatoria")
         @Enumerated(EnumType.STRING)
         Difficulty difficulty) {
+
+        @AssertTrue(message = "Il numero del percorso deve essere diverso da zero")
+        private boolean isTrailNumberValid() {
+                return trailNumber != 0;
+        }
+        @AssertTrue(message = "La lunghezza del percorso deve essere diversa da 0")
+        private boolean isLengthNumberValid() {
+                return length != 0;
+        }
+
 }

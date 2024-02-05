@@ -50,8 +50,7 @@ public class HikeController {
 
             System.out.println(validation.getAllErrors());
 
-            throw new BadRequestException("Ci sono errori nel payload :"
-                    + System.lineSeparator()
+            throw new BadRequestException("Ci sono errori nel payload : "
                     + validation.getAllErrors()
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
@@ -64,8 +63,21 @@ public class HikeController {
 
     @PutMapping("/{hikeId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Hike modifyHike(@PathVariable long hikeId, @RequestBody NewHikeDTO hikeDTO) {
-        return hikeService.modifyHike(hikeId, hikeDTO);
+    public Hike modifyHike(@PathVariable long hikeId, @RequestBody @Validated NewHikeDTO hikeDTO, BindingResult validation) {
+
+        if (validation.hasErrors()) {
+
+            System.out.println(validation.getAllErrors());
+
+            throw new BadRequestException("Ci sono errori nel payload : "
+                    + validation.getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.joining(System.lineSeparator()))
+            );
+        } else {
+            return hikeService.modifyHike(hikeId, hikeDTO);
+        }
     }
 
     @DeleteMapping("/{hikeId}")

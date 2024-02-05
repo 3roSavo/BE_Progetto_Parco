@@ -1,14 +1,15 @@
 package savoginEros.ParkprojectBE.payloads.users;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 
 public record NewUserDTO(
-        @NotEmpty(message = "Lo userName è obbligatorio")
+        String userIcon,
+        @NotBlank(message = "Lo username è obbligatorio")
         String username,
-        @NotEmpty(message = "La email è obbligatoria")
+        @NotBlank(message = "Non è consentito un indirizzo email nullo")
         @Email(message = "Il formato della email non è valido")
         String email,
-        @NotEmpty(message = "La password è obbligatoria")
+        @NotBlank(message = "La password è obbligatoria")
         String password) {
 }

@@ -54,8 +54,7 @@ public class AuthController {
 
             System.out.println(validation.getAllErrors());
 
-            throw new BadRequestException("Ci sono errori nel payload :"
-                    + System.lineSeparator()
+            throw new BadRequestException("Ci sono errori nel payload : "
                     + validation.getAllErrors()
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
