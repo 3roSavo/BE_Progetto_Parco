@@ -25,7 +25,7 @@ public class UserService {
     @Autowired
     private HikesDAO hikesDAO;
 
-    //METODI
+    //METODI CRUD (POST e PUT migrate in authService causa loop dependency injection)
 
     public List<User> getAllUsers() {
         return usersDAO.findAll();
