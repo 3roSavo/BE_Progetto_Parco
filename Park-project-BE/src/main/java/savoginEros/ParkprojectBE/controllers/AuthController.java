@@ -15,7 +15,6 @@ import savoginEros.ParkprojectBE.services.AuthService;
 import savoginEros.ParkprojectBE.services.UserService;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -66,7 +65,7 @@ public class AuthController {
 
         }
 
-        User user = userService.saveUser(newUser);
+        User user = authService.saveUser(newUser);
 
         return new UserResponseDTO(
                 user.getId(),

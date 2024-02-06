@@ -1,6 +1,7 @@
 package savoginEros.ParkprojectBE.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.Role;
@@ -28,25 +29,6 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return usersDAO.findAll();
-    }
-
-    public User saveUser(NewUserDTO newUser) {
-
-        if (usersDAO.findByEmail(newUser.email()).isPresent()) {
-            throw new BadRequestException("La email " + newUser.email() + " è già presente nel database! Cambiala per favore");
-        }
-
-        User user = new User(
-                newUser.username(),
-                newUser.email(),
-                newUser.password(),
-                Role.USER);
-
-        if (newUser.userIcon() != null) {
-            user.setUserIcon(newUser.userIcon());
-        }
-
-        return usersDAO.save(user);
     }
 
     public User getUserById(long id) {
