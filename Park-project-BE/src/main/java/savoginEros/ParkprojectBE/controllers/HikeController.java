@@ -3,12 +3,15 @@ package savoginEros.ParkprojectBE.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import savoginEros.ParkprojectBE.entities.Hike;
+import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
+import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.services.HikeService;
 
 import java.util.List;
@@ -37,6 +40,15 @@ public class HikeController {
         System.out.println("Titolo ricevuto: " + title);
         return hikeService.findByTitle(title);
     }
+
+    // Aggiunta ai preferiti ------------------
+
+    @PutMapping("/me/addFavourites/{hikeId}")
+    public Relation_User_Hike addToFavourites(@AuthenticationPrincipal User user, @PathVariable long hikeId) {
+
+        return hikeService.addToFavourites(user, hikeId);
+    }
+    // Aggiunta ai preferiti ------------------
 
 
 

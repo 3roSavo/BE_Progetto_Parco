@@ -11,10 +11,14 @@ import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
 import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
+import savoginEros.ParkprojectBE.payloads.users.UserResponseDTO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 import savoginEros.ParkprojectBE.services.UserService;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,14 +34,41 @@ public class UserController {
     // METODI CRUD
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable long userId) {
-        return userService.getUserById(userId);
+    public UserResponseDTO getUserById(@PathVariable long userId) {
+
+        User user = userService.getUserById(userId);
+
+        Set<Long> hikesIdSet = new HashSet<>();
+        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUserIcon(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                hikesIdSet
+        );
+
     }
 
     // /me per get del proprio profilo
     @GetMapping("/me")
-    public User getMeProfile(@AuthenticationPrincipal User user) {
-        return user;
+    public UserResponseDTO getMeProfile(@AuthenticationPrincipal User user) {
+
+        Set<Long> hikesIdSet = new HashSet<>();
+        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUserIcon(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                hikesIdSet
+        );
     }
 
     // /me per put
@@ -84,8 +115,29 @@ public class UserController {
     // REQUESTS FOR ADMINISTRATOR
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserResponseDTO> getAllUsers() {
+
+        List<User> userList = userService.getAllUsers();
+
+        List<UserResponseDTO> userResponseDTOList = new ArrayList<>();
+
+
+        userList.forEach(user -> {
+
+            Set<Long> hikesIdSet = new HashSet<>();
+            user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+
+            userResponseDTOList.add(new UserResponseDTO(
+                    user.getId(),
+                    user.getUserIcon(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getRole(),
+                    hikesIdSet
+            ));
+        });
+        return userResponseDTOList;
     }
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")

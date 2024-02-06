@@ -1,5 +1,6 @@
 package savoginEros.ParkprojectBE.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public class Hike {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_hike",
     joinColumns = @JoinColumn(name = "hike_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
