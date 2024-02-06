@@ -5,19 +5,22 @@ import org.springframework.stereotype.Service;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
-import savoginEros.ParkprojectBE.payloads.hikes.HikeResponseDTO;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.repositories.HikesDAO;
+import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class HikeService {
 
     @Autowired
     private HikesDAO hikesDAO;
+    @Autowired
+    private UsersDAO usersDAO;
 
 
     // METODI
@@ -31,7 +34,7 @@ public class HikeService {
     }
 
     public Hike getHikeById(long id) {
-        return hikesDAO.findById(id).orElseThrow( () -> new NotFoundException(id));
+        return hikesDAO.findById(id).orElseThrow( () -> new NotFoundException("Escursione", id));
     }
 
 
@@ -62,15 +65,23 @@ public class HikeService {
         hike.setTrailNumber(hikeDTO.trailNumber());
         hike.setDifficulty(hikeDTO.difficulty());
 
+        // MEMO
+        // Per aggiungere o rimuovere foto dalla lista foto o mi faccio un end-point dedicato
+        // oppure a ogni sua modifica elimino la lista precedente con la nuova lista di foto.
+        // Per ora nel caso ci siano foto nel payload mi limito ad aggiungerle alla lista e basta
         if (hikeDTO.urlImagesList() != null) {
             hikeDTO.urlImagesList().forEach(urlImage -> hike.getUrlImagesList().add(urlImage));
         }
-
         return hikesDAO.save(hike);
     }
 
     public void deleteHike(long hikeId) {
         Hike hike = getHikeById(hikeId);
+
+        //Set<User> userSet = new HashSet<>(hike.getUserSet());
+        //userSet.forEach(user -> user.getFavoriteHikesSet().remove(hike));
+
+        hike.getUserSet().forEach(user -> user.getFavoriteHikesSet().remove(hike));
         hikesDAO.delete(hike);
     }
 

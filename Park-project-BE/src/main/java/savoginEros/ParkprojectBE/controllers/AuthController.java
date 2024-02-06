@@ -10,9 +10,12 @@ import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.login.LoginResponseDTO;
 import savoginEros.ParkprojectBE.payloads.login.NewLoginDTO;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
+import savoginEros.ParkprojectBE.payloads.users.UserResponseDTO;
 import savoginEros.ParkprojectBE.services.AuthService;
 import savoginEros.ParkprojectBE.services.UserService;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,7 +51,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public User saveUser(@RequestBody @Validated NewUserDTO newUser, BindingResult validation) {
+    public UserResponseDTO saveUser(@RequestBody @Validated NewUserDTO newUser, BindingResult validation) {
 
         if (validation.hasErrors()) {
 
@@ -61,12 +64,18 @@ public class AuthController {
                     .collect(Collectors.joining(System.lineSeparator()))
             );
 
-        } else {
-
-        return userService.saveUser(newUser);
-
         }
 
-    }
+        User user = userService.saveUser(newUser);
 
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUserIcon(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                new HashSet<>()
+        );
+    }
 }

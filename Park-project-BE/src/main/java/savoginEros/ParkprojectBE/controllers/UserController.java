@@ -28,9 +28,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UsersDAO usersDAO;
-
     // METODI CRUD
 
     @GetMapping("/{userId}")
@@ -73,7 +70,7 @@ public class UserController {
 
     // /me per put
     @PutMapping("/me")
-    public User modifyMeProfile(@AuthenticationPrincipal User user, @RequestBody @Validated NewUserDTO userDTO, BindingResult validation) {
+    public UserResponseDTO modifyMeProfile(@AuthenticationPrincipal User userFound, @RequestBody @Validated NewUserDTO userDTO, BindingResult validation) {
 
         if (validation.hasErrors()) {
 
@@ -88,19 +85,20 @@ public class UserController {
 
         }
 
-        if (usersDAO.findByEmail(userDTO.email()).isPresent()) {
-            throw new BadRequestException("La email " + userDTO.email() + " è già presente nel DB");
-        }
+        User user = userService.modifyUserByIdForUsers(userFound, userDTO);
 
-        if (userDTO.userIcon() != null) {
-            user.setUserIcon(userDTO.userIcon());
-        }
+        Set<Long> hikesIdSet = new HashSet<>();
+        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
 
-        user.setUsername(userDTO.username());
-        user.setEmail(userDTO.email());
-        user.setPassword(userDTO.password());
-
-        return usersDAO.save(user);
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUserIcon(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                hikesIdSet
+        );
     }
 
     // /me per delete
@@ -143,11 +141,12 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable long userId) {
+
         userService.deleteUser(userId);
     }
     @PutMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public User modifyUserById(@PathVariable long userId, @RequestBody @Validated UserModifyForAdminsDTO userDTO, BindingResult validation) {
+    public UserResponseDTO modifyUserById(@PathVariable long userId, @RequestBody @Validated UserModifyForAdminsDTO userDTO, BindingResult validation) {
 
         if (validation.hasErrors()) {
 
@@ -160,6 +159,20 @@ public class UserController {
                     .collect(Collectors.joining(System.lineSeparator()))
             );
         }
-        return userService.modifyUserById(userId, userDTO);
+
+        User user = userService.modifyUserByIdForAdmins(userId, userDTO);
+
+        Set<Long> hikesIdSet = new HashSet<>();
+        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUserIcon(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getRole(),
+                hikesIdSet
+        );
     }
 }

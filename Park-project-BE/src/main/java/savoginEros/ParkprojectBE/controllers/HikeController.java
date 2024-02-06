@@ -10,11 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
+import savoginEros.ParkprojectBE.payloads.hikes.HikeResponseDTO;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.services.HikeService;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,37 +30,94 @@ public class HikeController {
 
 
     @GetMapping
-    public List<Hike> getAllHikes() {
-        return hikeService.getAllHikes();
-    }
+    public List<HikeResponseDTO> getAllHikes() {
 
-    @GetMapping("/{hikeId}")
-    public Hike getHikeById(@PathVariable long hikeId) {
-        return hikeService.getHikeById(hikeId);
+        List<Hike> hikeList = hikeService.getAllHikes();
+
+        List<HikeResponseDTO> hikeResponseDTOList = new ArrayList<>();
+
+        hikeList.forEach(hike -> {
+            Set<Long> usersIdSet = new HashSet<>();
+            hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+
+            hikeResponseDTOList.add(new HikeResponseDTO(
+                    hike.getId(),
+                    hike.getUrlImagesList(),
+                    hike.getTitle(),
+                    hike.getDescription(),
+                    hike.getDuration(),
+                    hike.getLength(),
+                    hike.getElevationGain(),
+                    hike.getTrailNumber(),
+                    hike.getDifficulty(),
+                    usersIdSet
+            ));
+        });
+        return hikeResponseDTOList;
     }
 
     @GetMapping("/title/{title}")
-    public List<Hike> getHikeByTitle(@PathVariable String title) {
-        System.out.println("Titolo ricevuto: " + title);
-        return hikeService.findByTitle(title);
+    public List<HikeResponseDTO> getHikeByTitle(@PathVariable String title) {
+
+        List<Hike> hikeList = hikeService.findByTitle(title);
+
+        List<HikeResponseDTO> hikeResponseDTOList = new ArrayList<>();
+
+        hikeList.forEach(hike -> {
+            Set<Long> usersIdSet = new HashSet<>();
+            hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+
+            hikeResponseDTOList.add(new HikeResponseDTO(
+                    hike.getId(),
+                    hike.getUrlImagesList(),
+                    hike.getTitle(),
+                    hike.getDescription(),
+                    hike.getDuration(),
+                    hike.getLength(),
+                    hike.getElevationGain(),
+                    hike.getTrailNumber(),
+                    hike.getDifficulty(),
+                    usersIdSet
+            ));
+        });
+        return hikeResponseDTOList;
     }
 
-    // Aggiunta ai preferiti ------------------
+    @GetMapping("/{hikeId}")
+    public HikeResponseDTO getHikeById(@PathVariable long hikeId) {
 
+        Hike hike = hikeService.getHikeById(hikeId);
+        Set<Long> usersIdSet = new HashSet<>();
+        hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+
+        return new HikeResponseDTO(
+                hike.getId(),
+                hike.getUrlImagesList(),
+                hike.getTitle(),
+                hike.getDescription(),
+                hike.getDuration(),
+                hike.getLength(),
+                hike.getElevationGain(),
+                hike.getTrailNumber(),
+                hike.getDifficulty(),
+                usersIdSet
+        );
+    }
+
+
+    // Aggiunta ai preferiti ------------------
     @PutMapping("/me/addFavourites/{hikeId}")
     public Relation_User_Hike addToFavourites(@AuthenticationPrincipal User user, @PathVariable long hikeId) {
 
         return hikeService.addToFavourites(user, hikeId);
     }
-    // Aggiunta ai preferiti ------------------
-
 
 
     // FOR ADMINISTRATORS
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Hike saveHike(@RequestBody @Validated NewHikeDTO hikeDTO, BindingResult validation) {
+    public HikeResponseDTO saveHike(@RequestBody @Validated NewHikeDTO hikeDTO, BindingResult validation) {
 
         if (validation.hasErrors()) {
 
@@ -68,14 +129,27 @@ public class HikeController {
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.joining(System.lineSeparator()))
             );
-        } else {
-        return hikeService.saveHike(hikeDTO);
         }
+
+        Hike hike = hikeService.saveHike(hikeDTO);
+
+        return new HikeResponseDTO(
+                hike.getId(),
+                hike.getUrlImagesList(),
+                hike.getTitle(),
+                hike.getDescription(),
+                hike.getDuration(),
+                hike.getLength(),
+                hike.getElevationGain(),
+                hike.getTrailNumber(),
+                hike.getDifficulty(),
+                new HashSet<>()
+        );
     }
 
     @PutMapping("/{hikeId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Hike modifyHike(@PathVariable long hikeId, @RequestBody @Validated NewHikeDTO hikeDTO, BindingResult validation) {
+    public HikeResponseDTO modifyHike(@PathVariable long hikeId, @RequestBody @Validated NewHikeDTO hikeDTO, BindingResult validation) {
 
         if (validation.hasErrors()) {
 
@@ -87,15 +161,32 @@ public class HikeController {
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.joining(System.lineSeparator()))
             );
-        } else {
-            return hikeService.modifyHike(hikeId, hikeDTO);
         }
+
+        Hike hike = hikeService.modifyHike(hikeId, hikeDTO);
+        Set<Long> usersIdSet = new HashSet<>();
+        hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+
+        return new HikeResponseDTO(
+                hike.getId(),
+                hike.getUrlImagesList(),
+                hike.getTitle(),
+                hike.getDescription(),
+                hike.getDuration(),
+                hike.getLength(),
+                hike.getElevationGain(),
+                hike.getTrailNumber(),
+                hike.getDifficulty(),
+                usersIdSet
+        );
+
     }
 
     @DeleteMapping("/{hikeId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteHike(@PathVariable long hikeId) {
+
         hikeService.deleteHike(hikeId);
     }
 

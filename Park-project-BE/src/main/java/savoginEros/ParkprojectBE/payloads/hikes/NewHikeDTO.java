@@ -1,5 +1,6 @@
 package savoginEros.ParkprojectBE.payloads.hikes;
 
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.AssertTrue;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import savoginEros.ParkprojectBE.entities.Difficulty;
+import savoginEros.ParkprojectBE.urlValidation.ValidUrl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,7 @@ public record NewHikeDTO(
         int elevationGain,
         @NotNull(message = "Il numero del percorso è obbligatorio")
         int trailNumber,
-        @NotBlank(message = "La difficoltà è obbligatoria")
+        @NotNull(message = "La difficoltà è obbligatoria")
         @Enumerated(EnumType.STRING)
         Difficulty difficulty) {
 
