@@ -13,6 +13,7 @@ import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
 import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
 import savoginEros.ParkprojectBE.payloads.users.UserResponseDTO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
+import savoginEros.ParkprojectBE.services.AuthService;
 import savoginEros.ParkprojectBE.services.UserService;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuthService authService;
 
     // METODI CRUD
 
@@ -85,7 +88,7 @@ public class UserController {
 
         }
 
-        User user = userService.modifyUserByIdForUsers(userFound, userDTO);
+        User user = authService.modifyUserByIdForUsers(userFound, userDTO);
 
         Set<Long> hikesIdSet = new HashSet<>();
         user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
@@ -160,7 +163,7 @@ public class UserController {
             );
         }
 
-        User user = userService.modifyUserByIdForAdmins(userId, userDTO);
+        User user = authService.modifyUserByIdForAdmins(userId, userDTO);
 
         Set<Long> hikesIdSet = new HashSet<>();
         user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));

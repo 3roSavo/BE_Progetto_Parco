@@ -50,45 +50,6 @@ public class UserService {
         usersDAO.delete(user);
     }
 
-    public User modifyUserByIdForAdmins(long userId, UserModifyForAdminsDTO userDTO) {
-
-        User user = getUserById(userId);
-
-        if (usersDAO.findByEmail(userDTO.email()).isPresent() && !userDTO.email().equals(user.getEmail())) {
-            // se passo una email che è presente nel db e che non corrisponde alla mia: exception
-            throw new BadRequestException("La email " + userDTO.email() + " è già presente nel DB");
-        }
-
-        if (userDTO.userIcon() != null) {
-            user.setUserIcon(userDTO.userIcon());
-        }
-
-        user.setUsername(userDTO.username());
-        user.setEmail(userDTO.email());
-        user.setPassword(userDTO.password());
-        user.setRole(userDTO.role());
-
-        return usersDAO.save(user);
-    }
-
-    public User modifyUserByIdForUsers(User user, NewUserDTO userDTO) {
-
-        if (usersDAO.findByEmail(userDTO.email()).isPresent() && !userDTO.email().equals(user.getEmail())) {
-            // se passo una email che è presente nel db e che non corrisponde alla mia: exception
-            throw new BadRequestException("La email " + userDTO.email() + " è già presente nel DB");
-        }
-
-        if (userDTO.userIcon() != null) {
-            user.setUserIcon(userDTO.userIcon());
-        }
-
-        user.setUsername(userDTO.username());
-        user.setEmail(userDTO.email());
-        user.setPassword(userDTO.password());
-
-        return usersDAO.save(user);
-    }
-
     public User findByEmail(String email) {
        return usersDAO.findByEmail(email).orElseThrow( () -> new NotFoundException("Utente con email " + email + " non trovato nel DB"));
     }

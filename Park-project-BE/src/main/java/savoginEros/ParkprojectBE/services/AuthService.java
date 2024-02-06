@@ -9,6 +9,7 @@ import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.exceptions.UnauthorizedException;
 import savoginEros.ParkprojectBE.payloads.login.NewLoginDTO;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
+import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 import savoginEros.ParkprojectBE.security.JWTTools;
 
@@ -17,7 +18,6 @@ public class AuthService {
 
     @Autowired
     private UserService userService;
-
     @Autowired
     private JWTTools jwtTools;
     @Autowired
@@ -62,5 +62,44 @@ public class AuthService {
         return usersDAO.save(user);
     }
 
+    public User modifyUserByIdForAdmins(long userId, UserModifyForAdminsDTO userDTO) {
 
+        User user = userService.getUserById(userId);
+
+        if (usersDAO.findByEmail(userDTO.email()).isPresent() && !userDTO.email().equals(user.getEmail())) {
+            // se passo una email che è presente nel db e che non corrisponde alla mia: exception
+            throw new BadRequestException("La email " + userDTO.email() + " è già presente nel DB");
+        }
+
+        if (userDTO.userIcon() != null) {
+            user.setUserIcon(userDTO.userIcon());
+        }
+
+        user.setUsername(userDTO.username());
+        user.setEmail(userDTO.email());
+        user.setPassword(passwordEncoder.encode(userDTO.password()));
+        //user.setPassword(userDTO.password());
+        user.setRole(userDTO.role());
+
+        return usersDAO.save(user);
+    }
+
+    public User modifyUserByIdForUsers(User user, NewUserDTO userDTO) {
+
+        if (usersDAO.findByEmail(userDTO.email()).isPresent() && !userDTO.email().equals(user.getEmail())) {
+            // se passo una email che è presente nel db e che non corrisponde alla mia: exception
+            throw new BadRequestException("La email " + userDTO.email() + " è già presente nel DB");
+        }
+
+        if (userDTO.userIcon() != null) {
+            user.setUserIcon(userDTO.userIcon());
+        }
+
+        user.setUsername(userDTO.username());
+        user.setEmail(userDTO.email());
+        user.setPassword(passwordEncoder.encode(userDTO.password()));
+        //user.setPassword(userDTO.password());
+
+        return usersDAO.save(user);
+    }
 }
