@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
@@ -13,6 +14,7 @@ import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +114,26 @@ public class HikeService {
 
         usersDAO.save(user);
     }
+
+    public List<String> uploadListPictures(long hikeId, MultipartFile[] file) throws IOException {
+
+        Hike hike = getHikeById(hikeId);
+
+        Map<String, String> options = new HashMap<>();
+        options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
+
+        for (int i = 0; i < file.length; i++) {
+
+        String url = (String) cloudinary.uploader().upload(file[i].getBytes(), options).get("url");
+        hike.getUrlImagesList().add(url);
+        }
+
+        hikesDAO.save(hike);
+
+        return hike.getUrlImagesList();
+
+    }
+
 
     public void deletePicture(String pictureId) throws IOException {
 

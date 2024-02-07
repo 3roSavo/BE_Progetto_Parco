@@ -7,12 +7,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.hikes.HikeResponseDTO;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
+import savoginEros.ParkprojectBE.payloads.users.UserIconUrl;
 import savoginEros.ParkprojectBE.services.HikeService;
 
 import java.io.IOException;
@@ -203,7 +205,12 @@ public class HikeController {
     }
 
 
+    @PutMapping("/{hikeId}/uploadListPictures")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<String> uploadListPictures(@PathVariable long hikeId, @RequestParam("pictures") MultipartFile[] file) throws IOException {
 
+        return hikeService.uploadListPictures(hikeId, file);
+    }
 
 
 }

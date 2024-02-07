@@ -182,7 +182,6 @@ public class UserController {
     @PutMapping("/me/uploadIcon")
     public UserIconUrl uploadIcon(@AuthenticationPrincipal User user, @RequestParam("icon") MultipartFile file) throws IOException {
 
-
         return new UserIconUrl(userService.uploadPicture(user, file));
     }
 
