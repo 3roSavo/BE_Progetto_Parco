@@ -16,9 +16,7 @@ import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.services.HikeService;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,8 +35,8 @@ public class HikeController {
         List<HikeResponseDTO> hikeResponseDTOList = new ArrayList<>();
 
         hikeList.forEach(hike -> {
-            Set<Long> usersIdSet = new HashSet<>();
-            hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+            List<Long> usersIdList = new ArrayList<>();
+            hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
             hikeResponseDTOList.add(new HikeResponseDTO(
                     hike.getId(),
@@ -50,7 +48,7 @@ public class HikeController {
                     hike.getElevationGain(),
                     hike.getTrailNumber(),
                     hike.getDifficulty(),
-                    usersIdSet
+                    usersIdList
             ));
         });
         return hikeResponseDTOList;
@@ -64,8 +62,8 @@ public class HikeController {
         List<HikeResponseDTO> hikeResponseDTOList = new ArrayList<>();
 
         hikeList.forEach(hike -> {
-            Set<Long> usersIdSet = new HashSet<>();
-            hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+            List<Long> usersIdList = new ArrayList<>();
+            hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
             hikeResponseDTOList.add(new HikeResponseDTO(
                     hike.getId(),
@@ -77,7 +75,7 @@ public class HikeController {
                     hike.getElevationGain(),
                     hike.getTrailNumber(),
                     hike.getDifficulty(),
-                    usersIdSet
+                    usersIdList
             ));
         });
         return hikeResponseDTOList;
@@ -87,8 +85,8 @@ public class HikeController {
     public HikeResponseDTO getHikeById(@PathVariable long hikeId) {
 
         Hike hike = hikeService.getHikeById(hikeId);
-        Set<Long> usersIdSet = new HashSet<>();
-        hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+        List<Long> usersIdList = new ArrayList<>();
+        hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
         return new HikeResponseDTO(
                 hike.getId(),
@@ -100,7 +98,7 @@ public class HikeController {
                 hike.getElevationGain(),
                 hike.getTrailNumber(),
                 hike.getDifficulty(),
-                usersIdSet
+                usersIdList
         );
     }
 
@@ -149,7 +147,7 @@ public class HikeController {
                 hike.getElevationGain(),
                 hike.getTrailNumber(),
                 hike.getDifficulty(),
-                new HashSet<>()
+                new ArrayList<>()
         );
     }
 
@@ -170,8 +168,8 @@ public class HikeController {
         }
 
         Hike hike = hikeService.modifyHike(hikeId, hikeDTO);
-        Set<Long> usersIdSet = new HashSet<>();
-        hike.getUserSet().forEach(user -> usersIdSet.add(user.getId()));
+        List<Long> usersIdList = new ArrayList<>();
+        hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
         return new HikeResponseDTO(
                 hike.getId(),
@@ -183,7 +181,7 @@ public class HikeController {
                 hike.getElevationGain(),
                 hike.getTrailNumber(),
                 hike.getDifficulty(),
-                usersIdSet
+                usersIdList
         );
 
     }

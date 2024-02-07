@@ -1,21 +1,13 @@
 package savoginEros.ParkprojectBE.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import savoginEros.ParkprojectBE.entities.Hike;
-import savoginEros.ParkprojectBE.entities.Role;
 import savoginEros.ParkprojectBE.entities.User;
-import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
-import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
-import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
 import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class UserService {
@@ -36,12 +28,13 @@ public class UserService {
     }
 
     public void deleteUser(long userId) {
+
         User user = getUserById(userId);
 
+        user.getFavoriteHikesList().forEach(hike -> hike.getUserList().remove(user));
 
-        Set<Hike> favoriteHikesCopy = new HashSet<>(user.getFavoriteHikesSet());
-
-        favoriteHikesCopy.forEach(hike -> hike.getUserSet().remove(user));
+        //List<Hike> favoriteHikesCopy = new ArrayList<>(user.getFavoriteHikesList());
+        //favoriteHikesCopy.forEach(hike -> hike.getUserList().remove(user));
 
         // VARIANTE con ciclo FOR
         /*for (Hike hike : favoriteHikesCopy) {

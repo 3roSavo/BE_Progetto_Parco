@@ -12,14 +12,11 @@ import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
 import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
 import savoginEros.ParkprojectBE.payloads.users.UserResponseDTO;
-import savoginEros.ParkprojectBE.repositories.UsersDAO;
 import savoginEros.ParkprojectBE.services.AuthService;
 import savoginEros.ParkprojectBE.services.UserService;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,8 +35,8 @@ public class UserController {
 
         User user = userService.getUserById(userId);
 
-        Set<Long> hikesIdSet = new HashSet<>();
-        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+        List<Long> hikesIdList = new ArrayList<>();
+        user.getFavoriteHikesList().forEach(hike -> hikesIdList.add(hike.getId()));
 
         return new UserResponseDTO(
                 user.getId(),
@@ -48,7 +45,7 @@ public class UserController {
                 user.getEmail(),
                 user.getPassword(),
                 user.getRole(),
-                hikesIdSet
+                hikesIdList
         );
 
     }
@@ -57,8 +54,8 @@ public class UserController {
     @GetMapping("/me")
     public UserResponseDTO getMeProfile(@AuthenticationPrincipal User user) {
 
-        Set<Long> hikesIdSet = new HashSet<>();
-        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+        List<Long> hikesIdList = new ArrayList<>();
+        user.getFavoriteHikesList().forEach(hike -> hikesIdList.add(hike.getId()));
 
         return new UserResponseDTO(
                 user.getId(),
@@ -67,7 +64,7 @@ public class UserController {
                 user.getEmail(),
                 user.getPassword(),
                 user.getRole(),
-                hikesIdSet
+                hikesIdList
         );
     }
 
@@ -90,8 +87,8 @@ public class UserController {
 
         User user = authService.modifyUserByIdForUsers(userFound, userDTO);
 
-        Set<Long> hikesIdSet = new HashSet<>();
-        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+        List<Long> hikesIdList = new ArrayList<>();
+        user.getFavoriteHikesList().forEach(hike -> hikesIdList.add(hike.getId()));
 
         return new UserResponseDTO(
                 user.getId(),
@@ -100,7 +97,7 @@ public class UserController {
                 user.getEmail(),
                 user.getPassword(),
                 user.getRole(),
-                hikesIdSet
+                hikesIdList
         );
     }
 
@@ -125,8 +122,8 @@ public class UserController {
 
         userList.forEach(user -> {
 
-            Set<Long> hikesIdSet = new HashSet<>();
-            user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+            List<Long> hikesIdList = new ArrayList<>();
+            user.getFavoriteHikesList().forEach(hike -> hikesIdList.add(hike.getId()));
 
             userResponseDTOList.add(new UserResponseDTO(
                     user.getId(),
@@ -135,7 +132,7 @@ public class UserController {
                     user.getEmail(),
                     user.getPassword(),
                     user.getRole(),
-                    hikesIdSet
+                    hikesIdList
             ));
         });
         return userResponseDTOList;
@@ -165,8 +162,8 @@ public class UserController {
 
         User user = authService.modifyUserByIdForAdmins(userId, userDTO);
 
-        Set<Long> hikesIdSet = new HashSet<>();
-        user.getFavoriteHikesSet().forEach(hike -> hikesIdSet.add(hike.getId()));
+        List<Long> hikesIdList = new ArrayList<>();
+        user.getFavoriteHikesList().forEach(hike -> hikesIdList.add(hike.getId()));
 
         return new UserResponseDTO(
                 user.getId(),
@@ -175,7 +172,7 @@ public class UserController {
                 user.getEmail(),
                 user.getPassword(),
                 user.getRole(),
-                hikesIdSet
+                hikesIdList
         );
     }
 }

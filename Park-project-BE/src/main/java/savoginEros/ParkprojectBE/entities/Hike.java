@@ -44,7 +44,7 @@ public class Hike {
     @JoinTable(name = "user_hike",
     joinColumns = @JoinColumn(name = "hike_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> userSet;
+    private List<User> userList;
 
     public Hike(
             String title,
@@ -63,4 +63,13 @@ public class Hike {
         this.trailNumber = trailNumber;
         this.difficulty = difficulty;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Hike hike = (Hike) o;
+        return id == hike.getId();
+    }
+
 }

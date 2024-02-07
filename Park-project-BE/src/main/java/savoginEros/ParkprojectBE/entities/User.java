@@ -1,7 +1,6 @@
 package savoginEros.ParkprojectBE.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,8 +37,8 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "userSet")
-    private Set<Hike> favoriteHikesSet;
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "userList")
+    private List<Hike> favoriteHikesList;
 
 
     // COSTRUTTORE
@@ -49,6 +48,14 @@ public class User implements UserDetails {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.getId();
     }
 
     @Override

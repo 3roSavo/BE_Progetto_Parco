@@ -15,6 +15,6 @@ public record HikeResponseDTO(
         int elevationGain,
         int trailNumber,
         Difficulty difficulty,
-        Set<Long> usersIdSet
+        List<Long> usersIdList
 ) {
 }

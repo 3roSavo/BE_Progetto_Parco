@@ -2,6 +2,7 @@ package savoginEros.ParkprojectBE.payloads.users;
 
 import savoginEros.ParkprojectBE.entities.Role;
 
+import java.util.List;
 import java.util.Set;
 
 public record UserResponseDTO(
@@ -11,5 +12,5 @@ public record UserResponseDTO(
         String email,
         String password,
         Role role,
-        Set<Long> hikesIdSet) {
+        List<Long> hikesIdList) {
 }

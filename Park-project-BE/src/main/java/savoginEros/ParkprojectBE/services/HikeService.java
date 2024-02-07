@@ -11,7 +11,6 @@ import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class HikeService {
@@ -75,12 +74,13 @@ public class HikeService {
     }
 
     public void deleteHike(long hikeId) {
+
         Hike hike = getHikeById(hikeId);
 
         //Set<User> userSet = new HashSet<>(hike.getUserSet());
         //userSet.forEach(user -> user.getFavoriteHikesSet().remove(hike));
 
-        hike.getUserSet().forEach(user -> user.getFavoriteHikesSet().remove(hike));
+        hike.getUserList().forEach(user -> user.getFavoriteHikesList().remove(hike));
         hikesDAO.delete(hike);
     }
 
@@ -88,8 +88,11 @@ public class HikeService {
     public Relation_User_Hike addToFavourites(User user, long hikeId) {
 
         Hike hike = getHikeById(hikeId);
-        hike.getUserSet().add(user);
+
+        if (!user.getFavoriteHikesList().contains(hike)) {
+        hike.getUserList().add(user);
         hikesDAO.save(hike);
+        }
         return new Relation_User_Hike(user.getId(), hike.getId());
     }
     // RIMOZIONE DAI PREFERITI --------------
@@ -97,7 +100,8 @@ public class HikeService {
 
         Hike hike = getHikeById(hikeId);
 
-        user.getFavoriteHikesSet().remove(hike);
+        user.getFavoriteHikesList().remove(hike);
+        hike.getUserList().remove(user);
 
         usersDAO.save(user);
     }
