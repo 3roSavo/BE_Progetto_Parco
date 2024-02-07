@@ -3,6 +3,7 @@ package savoginEros.ParkprojectBE.services;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.User;
@@ -11,7 +12,9 @@ import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -53,8 +56,15 @@ public class UserService {
        return usersDAO.findByEmail(email).orElseThrow( () -> new NotFoundException("Utente con email " + email + " non trovato nel DB"));
     }
 
-    public String uploadPicture(MultipartFile file) throws IOException {
-        String url = (String) cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+    public String uploadPicture(User user, MultipartFile file) throws IOException {
+        Map<String, String> options = new HashMap<>();
+
+        options.put("folder", "Progetto_Parco/Icone_Utenti");
+
+        String url = (String) cloudinary.uploader().upload(file.getBytes(), options).get("url");
+        user.setUserIcon(url);
+        usersDAO.save(user);
+
         return url;
     }
 }

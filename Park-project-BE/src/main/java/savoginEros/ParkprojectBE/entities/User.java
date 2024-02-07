@@ -26,7 +26,7 @@ public class User implements UserDetails {
     @Setter(AccessLevel.NONE)
     private long id;
 
-    private String userIcon = "https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1725655669.jpg";
+    private String userIcon = "http://res.cloudinary.com/diklzegyw/image/upload/v1707326540/Progetto_Parco/Icone_Utenti/qwczj7digro7yyydl2xj.webp";
 
     private String username;
 

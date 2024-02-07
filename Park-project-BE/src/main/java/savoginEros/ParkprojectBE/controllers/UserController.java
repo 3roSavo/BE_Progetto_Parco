@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
+import savoginEros.ParkprojectBE.payloads.users.UserIconUrl;
 import savoginEros.ParkprojectBE.payloads.users.UserModifyForAdminsDTO;
 import savoginEros.ParkprojectBE.payloads.users.UserResponseDTO;
 import savoginEros.ParkprojectBE.services.AuthService;
@@ -178,9 +179,11 @@ public class UserController {
         );
     }
 
-    @PutMapping("/me/upload")
-    public String uploadIcon(@RequestParam("icon") MultipartFile file) throws IOException {
-        return userService.uploadPicture(file);
+    @PutMapping("/me/uploadIcon")
+    public UserIconUrl uploadIcon(@AuthenticationPrincipal User user, @RequestParam("icon") MultipartFile file) throws IOException {
+
+
+        return new UserIconUrl(userService.uploadPicture(user, file));
     }
 
 }
