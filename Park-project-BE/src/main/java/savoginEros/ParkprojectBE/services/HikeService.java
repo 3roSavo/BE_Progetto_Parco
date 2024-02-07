@@ -1,5 +1,7 @@
 package savoginEros.ParkprojectBE.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import savoginEros.ParkprojectBE.entities.Hike;
@@ -10,7 +12,10 @@ import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HikeService {
@@ -19,6 +24,8 @@ public class HikeService {
     private HikesDAO hikesDAO;
     @Autowired
     private UsersDAO usersDAO;
+    @Autowired
+    private Cloudinary cloudinary;
 
 
     // METODI
@@ -105,4 +112,10 @@ public class HikeService {
 
         usersDAO.save(user);
     }
+
+    public void deletePicture(String pictureId) throws IOException {
+
+        cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
+    }
+
 }

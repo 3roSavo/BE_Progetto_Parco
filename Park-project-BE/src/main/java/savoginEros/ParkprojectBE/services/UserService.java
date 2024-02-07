@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -56,15 +58,29 @@ public class UserService {
        return usersDAO.findByEmail(email).orElseThrow( () -> new NotFoundException("Utente con email " + email + " non trovato nel DB"));
     }
 
+    public static String extractPictureId(String input) {
+
+        String regex = ".*/([^/]+)\\..*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
+
     public String uploadPicture(User user, MultipartFile file) throws IOException {
         Map<String, String> options = new HashMap<>();
 
         options.put("folder", "Progetto_Parco/Icone_Utenti");
-
         String url = (String) cloudinary.uploader().upload(file.getBytes(), options).get("url");
+        if (!user.getUserIcon().equals("http://res.cloudinary.com/diklzegyw/image/upload/v1707326540/Progetto_Parco/Icone_Utenti/qwczj7digro7yyydl2xj.webp")) {
+            String pictureId = extractPictureId(user.getUserIcon());
+            cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
+        }
         user.setUserIcon(url);
         usersDAO.save(user);
-
         return url;
     }
 }

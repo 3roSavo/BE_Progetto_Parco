@@ -15,6 +15,7 @@ import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.services.HikeService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -192,6 +193,13 @@ public class HikeController {
     public void deleteHike(@PathVariable long hikeId) {
 
         hikeService.deleteHike(hikeId);
+    }
+
+    @DeleteMapping("/deletePicture/{pictureId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deletePictures(@PathVariable String pictureId) throws IOException {
+        hikeService.deletePicture(pictureId);
     }
 
 
