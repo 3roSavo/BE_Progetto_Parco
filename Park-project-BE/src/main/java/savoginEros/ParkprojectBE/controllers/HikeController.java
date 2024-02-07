@@ -106,10 +106,16 @@ public class HikeController {
 
 
     // Aggiunta ai preferiti ------------------
-    @PutMapping("/me/addFavourites/{hikeId}")
-    public Relation_User_Hike addToFavourites(@AuthenticationPrincipal User user, @PathVariable long hikeId) {
+    @PutMapping("/me/addFavourite/{hikeId}")
+    public Relation_User_Hike addToFavourite(@AuthenticationPrincipal User user, @PathVariable long hikeId) {
 
         return hikeService.addToFavourites(user, hikeId);
+    }
+    // Rimozione dai preferiti --------------
+    @PutMapping("/me/removeFavourite/{hikeId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFavourite(@AuthenticationPrincipal User user, @PathVariable long hikeId) {
+        hikeService.removeFavourite(user, hikeId);
     }
 
 
