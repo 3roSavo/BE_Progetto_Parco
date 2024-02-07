@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.users.NewUserDTO;
@@ -15,6 +16,7 @@ import savoginEros.ParkprojectBE.payloads.users.UserResponseDTO;
 import savoginEros.ParkprojectBE.services.AuthService;
 import savoginEros.ParkprojectBE.services.UserService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -175,4 +177,10 @@ public class UserController {
                 hikesIdList
         );
     }
+
+    @PutMapping("/me/upload")
+    public String uploadIcon(@RequestParam("icon") MultipartFile file) throws IOException {
+        return userService.uploadPicture(file);
+    }
+
 }

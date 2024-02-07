@@ -1,12 +1,16 @@
 package savoginEros.ParkprojectBE.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
 import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -16,6 +20,8 @@ public class UserService {
     private UsersDAO usersDAO;
     @Autowired
     private HikesDAO hikesDAO;
+    @Autowired
+    private Cloudinary cloudinary;
 
     //METODI CRUD (POST e PUT migrate in authService causa loop dependency injection)
 
@@ -45,5 +51,10 @@ public class UserService {
 
     public User findByEmail(String email) {
        return usersDAO.findByEmail(email).orElseThrow( () -> new NotFoundException("Utente con email " + email + " non trovato nel DB"));
+    }
+
+    public String uploadPicture(MultipartFile file) throws IOException {
+        String url = (String) cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+        return url;
     }
 }
