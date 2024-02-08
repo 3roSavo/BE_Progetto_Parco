@@ -12,6 +12,7 @@ import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.BadRequestException;
 import savoginEros.ParkprojectBE.payloads.hikes.HikeResponseDTO;
+import savoginEros.ParkprojectBE.payloads.hikes.HikesPictureList;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.payloads.users.UserIconUrl;
@@ -197,11 +198,19 @@ public class HikeController {
         hikeService.deleteHike(hikeId);
     }
 
-    @DeleteMapping("/deletePicture/{pictureId}")
+    /*@DeleteMapping("/deletePictures/{pictureId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deletePictures(@PathVariable String pictureId) throws IOException {
         hikeService.deletePicture(pictureId);
+    }*/
+
+    // Prova eliminazione multipla
+    @DeleteMapping("/{hikeId}/deletePictures")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deletePictures(@PathVariable long hikeId, @RequestBody HikesPictureList pictureList) throws Exception {
+        hikeService.deletePictures(hikeId, pictureList);
     }
 
 

@@ -8,16 +8,17 @@ import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
+import savoginEros.ParkprojectBE.payloads.hikes.HikesPictureList;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
 import savoginEros.ParkprojectBE.repositories.HikesDAO;
 import savoginEros.ParkprojectBE.repositories.UsersDAO;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class HikeService {
@@ -115,6 +116,18 @@ public class HikeService {
         usersDAO.save(user);
     }
 
+    public static String extractPictureId(String input) {
+
+        String regex = ".*/([^/]+)\\..*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
+
     public List<String> uploadListPictures(long hikeId, MultipartFile[] file) throws IOException {
 
         Hike hike = getHikeById(hikeId);
@@ -135,9 +148,33 @@ public class HikeService {
     }
 
 
-    public void deletePicture(String pictureId) throws IOException {
+    public void deletePictures(long hikeId, HikesPictureList pictureList) throws Exception {
 
-        cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
+        Hike hike = getHikeById(hikeId);
+
+        Map<String, String> options = new HashMap<>();
+        options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
+
+        List<String> pictureIds = pictureList.hikesPictureList()
+                .stream()
+                .map(string -> "Progetto_Parco/Galleria_Foto_Escursioni/" + extractPictureId(string))
+                .toList();
+
+        System.out.println(pictureIds);
+
+        cloudinary.api().deleteResources(pictureIds, options);
+
+        hike.getUrlImagesList().removeAll(pictureList.hikesPictureList());
+
+            hikesDAO.save(hike);
+
+            // Attenzione necessiti di un iteratore qui sotto
+            /*hike.getUrlImagesList().forEach(string -> {
+                hike.getUrlImagesList().remove(string);
+            });*/
+
+            //cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
+
     }
 
 }
