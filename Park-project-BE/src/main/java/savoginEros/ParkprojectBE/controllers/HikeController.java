@@ -1,6 +1,8 @@
 package savoginEros.ParkprojectBE.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,13 +34,34 @@ public class HikeController {
 
 
     @GetMapping
-    public List<HikeResponseDTO> getAllHikes() {
+    public Page<HikeResponseDTO> getAllHikes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sort) {
 
-        List<Hike> hikeList = hikeService.getAllHikes();
+        Page<Hike> hikeList = hikeService.getAllHikes(page, size, sort);
 
-        List<HikeResponseDTO> hikeResponseDTOList = new ArrayList<>();
+        return hikeList.map(hike -> {
 
-        hikeList.forEach(hike -> {
+                    List<Long> usersIdList = new ArrayList<>();
+
+                    hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
+
+                    return new HikeResponseDTO(
+                            hike.getId(),
+                            hike.getUrlImagesList(),
+                            hike.getTitle(),
+                            hike.getDescription(),
+                            hike.getDuration(),
+                            hike.getLength(),
+                            hike.getElevationGain(),
+                            hike.getTrailNumber(),
+                            hike.getDifficulty(),
+                            usersIdList
+                    );
+        });
+    }
+        /*hikeList.forEach(hike -> {
             List<Long> usersIdList = new ArrayList<>();
             hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
@@ -55,8 +78,7 @@ public class HikeController {
                     usersIdList
             ));
         });
-        return hikeResponseDTOList;
-    }
+        return hikeResponseDTOList;*/
 
     @GetMapping("/title/{title}")
     public List<HikeResponseDTO> getHikeByTitle(@PathVariable String title) {

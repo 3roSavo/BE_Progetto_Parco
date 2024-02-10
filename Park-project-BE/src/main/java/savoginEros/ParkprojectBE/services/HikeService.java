@@ -3,6 +3,10 @@ package savoginEros.ParkprojectBE.services;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.Hike;
@@ -33,8 +37,12 @@ public class HikeService {
 
     // METODI
 
-    public List<Hike> getAllHikes() {
-        return hikesDAO.findAll();
+    public Page<Hike> getAllHikes(int page, int size, String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Hike> hikePage = hikesDAO.findAll(pageable);
+
+        return hikePage;
     }
 
     public List<Hike> findByTitle(String partialTitle) {
