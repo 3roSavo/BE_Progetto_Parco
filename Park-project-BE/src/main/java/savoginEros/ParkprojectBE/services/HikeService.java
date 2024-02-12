@@ -45,8 +45,11 @@ public class HikeService {
         return hikePage;
     }
 
-    public List<Hike> findByTitle(String partialTitle) {
-        return hikesDAO.findByTitleContainingIgnoreCase(partialTitle);
+    public Page<Hike> findByTitle(String partialTitle, int page, int size, String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+
+        return hikesDAO.findByTitleContainingIgnoreCase(partialTitle, pageable);
     }
 
     public Hike getHikeById(long id) {

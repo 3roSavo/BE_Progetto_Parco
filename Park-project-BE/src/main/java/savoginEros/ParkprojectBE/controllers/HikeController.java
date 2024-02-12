@@ -41,9 +41,9 @@ public class HikeController {
 
         Page<Hike> hikeList = hikeService.getAllHikes(page, size, sort);
 
-        return hikeList.map(hike -> {
-
                     List<Long> usersIdList = new ArrayList<>();
+
+        return hikeList.map(hike -> {
 
                     hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
@@ -81,17 +81,20 @@ public class HikeController {
         return hikeResponseDTOList;*/
 
     @GetMapping("/title/{title}")
-    public List<HikeResponseDTO> getHikeByTitle(@PathVariable String title) {
+    public Page<HikeResponseDTO> getHikeByTitle(
+            @PathVariable String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sort) {
 
-        List<Hike> hikeList = hikeService.findByTitle(title);
+        Page<Hike> hikeList = hikeService.findByTitle(title, page, size, sort);
 
-        List<HikeResponseDTO> hikeResponseDTOList = new ArrayList<>();
-
-        hikeList.forEach(hike -> {
             List<Long> usersIdList = new ArrayList<>();
+
+        return hikeList.map(hike -> {
             hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
-            hikeResponseDTOList.add(new HikeResponseDTO(
+            return new HikeResponseDTO(
                     hike.getId(),
                     hike.getUrlImagesList(),
                     hike.getTitle(),
@@ -102,9 +105,8 @@ public class HikeController {
                     hike.getTrailNumber(),
                     hike.getDifficulty(),
                     usersIdList
-            ));
+            );
         });
-        return hikeResponseDTOList;
     }
 
     @GetMapping("/{hikeId}")
