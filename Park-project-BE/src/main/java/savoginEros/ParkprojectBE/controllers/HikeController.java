@@ -41,9 +41,9 @@ public class HikeController {
 
         Page<Hike> hikeList = hikeService.getAllHikes(page, size, sort);
 
-                    List<Long> usersIdList = new ArrayList<>();
-
         return hikeList.map(hike -> {
+
+                    List<Long> usersIdList = new ArrayList<>();
 
                     hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
@@ -89,9 +89,10 @@ public class HikeController {
 
         Page<Hike> hikeList = hikeService.findByTitle(title, page, size, sort);
 
+        return hikeList.map(hike -> {
+
             List<Long> usersIdList = new ArrayList<>();
 
-        return hikeList.map(hike -> {
             hike.getUserList().forEach(user -> usersIdList.add(user.getId()));
 
             return new HikeResponseDTO(
