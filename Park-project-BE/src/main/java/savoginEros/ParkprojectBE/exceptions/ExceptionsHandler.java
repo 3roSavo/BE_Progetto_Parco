@@ -30,6 +30,12 @@ public class ExceptionsHandler {
         return new ErrorResponseDTO("Il tuo ruolo non permette di accedere a questa funzionalità!", new Date());
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponseDTO handleNotFound(NotFoundException exception) {
+        return new ErrorResponseDTO(exception.getMessage(), new Date());
+    }
+
 
 
 }
