@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -156,12 +157,18 @@ public class HikeController {
 
             System.out.println(validation.getAllErrors());
 
-            throw new BadRequestException("Ci sono errori nel payload : "
-                    + validation.getAllErrors()
+            List<String> errorMessages = validation.getAllErrors()
                     .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.joining(System.lineSeparator()))
-            );
+                    .map(objectError -> {
+                        String fieldName = ((FieldError) objectError).getField();
+                        String errorMessage = objectError.getDefaultMessage();
+                        return fieldName + ": " + errorMessage;
+                    })
+                    .collect(Collectors.toList());
+
+            String errorMessageString = String.join(System.lineSeparator(), errorMessages);
+
+            throw new BadRequestException("Ci sono errori nel payload: " + System.lineSeparator() + errorMessageString);
         }
 
         Hike hike = hikeService.saveHike(hikeDTO);

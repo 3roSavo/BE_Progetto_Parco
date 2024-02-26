@@ -161,23 +161,27 @@ public class HikeService {
 
     public void deletePictures(long hikeId, HikesPictureList pictureList) throws Exception {
 
-        Hike hike = getHikeById(hikeId);
+        List<String> imagesList = pictureList.hikesPictureList().stream().filter(
+                picture -> !picture.equals("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp")).toList();
 
-        Map<String, String> options = new HashMap<>();
-        options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
 
-        List<String> pictureIds = pictureList.hikesPictureList()
+        if (!imagesList.isEmpty()) {
+
+            Hike hike = getHikeById(hikeId);
+
+            Map<String, String> options = new HashMap<>();
+            options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
+
+            List<String> pictureIds = imagesList
                 .stream()
                 .map(string -> "Progetto_Parco/Galleria_Foto_Escursioni/" + extractPictureId(string))
                 .toList();
 
-        System.out.println(pictureIds);
+            System.out.println(pictureIds);
 
-        cloudinary.api().deleteResources(pictureIds, options);
+            cloudinary.api().deleteResources(pictureIds, options);
 
-        hike.getUrlImagesList().removeAll(pictureList.hikesPictureList());
-
-            hikesDAO.save(hike);
+            hike.getUrlImagesList().removeAll(imagesList);
 
             // Attenzione necessiti di un iteratore qui sotto
             /*hike.getUrlImagesList().forEach(string -> {
@@ -185,6 +189,9 @@ public class HikeService {
             });*/
 
             //cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
+
+            hikesDAO.save(hike);
+        }
 
     }
 
