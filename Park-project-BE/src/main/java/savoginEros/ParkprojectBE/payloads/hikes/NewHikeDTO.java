@@ -13,7 +13,7 @@ import java.util.List;
 public record NewHikeDTO(
         List<String> urlImagesList,
         @NotBlank(message = "Il titolo è obbligatorio")
-        @Size(min = 5, max = 30, message = "Il titolo deve essere compreso tra 5 e 30 caratteri")
+        @Size(min = 5, max = 35, message = "Il titolo deve essere compreso tra 5 e 35 caratteri")
         String title,
         @NotBlank(message = "La descrizione è obbligatoria")
         @Size(min = 12, max = 1000, message = "La descrizione deve essere compreso tra 12 e 1000 caratteri")

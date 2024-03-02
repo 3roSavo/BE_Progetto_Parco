@@ -237,12 +237,12 @@ public class HikeController {
         hikeService.deletePicture(pictureId);
     }*/
 
-    // Prova eliminazione multipla
+    // Prova eliminazione immagini multiple, la utilizzerò sia per la PUT dell' hike sia per la DELETE dell' hike
     @DeleteMapping("/{hikeId}/deletePictures")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void deletePictures(@PathVariable long hikeId, @RequestBody HikesPictureList pictureList) throws Exception {
-        hikeService.deletePictures(hikeId, pictureList);
+    public List<String> deletePictures(@PathVariable long hikeId, @RequestBody HikesPictureList pictureList) throws Exception {
+        return hikeService.deletePictures(hikeId, pictureList);
     }
 
 

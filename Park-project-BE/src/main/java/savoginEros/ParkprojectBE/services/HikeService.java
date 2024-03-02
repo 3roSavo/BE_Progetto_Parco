@@ -159,15 +159,34 @@ public class HikeService {
     }
 
 
-    public void deletePictures(long hikeId, HikesPictureList pictureList) throws Exception {
+    public List<String> deletePictures(long hikeId, HikesPictureList pictureList) throws Exception {
+        // utilizzerò questo metodo sia nella DELETE di un'escursione si nella PUT di un'escursione
 
+            Hike hike = getHikeById(hikeId);
+
+            // numero url da eliminare
+            int urlNumbersToDelete = pictureList.hikesPictureList().size();
+
+            // numero url nella lista dell'escursione
+            int urlNumbers = hike.getUrlImagesList().size();
+
+
+
+            // eliminazione immagine default dalla lista se ci sono più foto di quelle che vogliamo eliminare
+            if (pictureList.hikesPictureList().contains("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp") && urlNumbers > urlNumbersToDelete) {
+                hike.getUrlImagesList().remove("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp");
+                // se voglio eliminare tutte le foto e non è presente quella di default la aggiungo
+                // oppure voglio eliminare l'unica foto presente e la seguente foto non corrisponde a quella di default, la aggiungo
+                // poi proseguo
+            } else if (!hike.getUrlImagesList().contains("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp") && urlNumbers == urlNumbersToDelete) { // aggiunta dell'immagine di default nel caso vengano eliminate tutte le immagini
+                hike.getUrlImagesList().add("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp");
+            }
+
+            // nel caso l'utente voglia eliminare l'unica foto esistente e che corrisponda a quella di default il filter blocca il proseguimento dell'eliminazione
         List<String> imagesList = pictureList.hikesPictureList().stream().filter(
                 picture -> !picture.equals("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp")).toList();
 
-
         if (!imagesList.isEmpty()) {
-
-            Hike hike = getHikeById(hikeId);
 
             Map<String, String> options = new HashMap<>();
             options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
@@ -189,9 +208,10 @@ public class HikeService {
             });*/
 
             //cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
-
-            hikesDAO.save(hike);
         }
+            hikesDAO.save(hike);
+
+        return hike.getUrlImagesList();
 
     }
 
