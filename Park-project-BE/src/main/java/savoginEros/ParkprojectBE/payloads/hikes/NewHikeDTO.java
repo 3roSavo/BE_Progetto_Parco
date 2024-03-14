@@ -34,8 +34,8 @@ public record NewHikeDTO(
         int trailNumber,
         @NotNull(message = "La difficoltà è obbligatoria")
         @Enumerated(EnumType.STRING)
-        Difficulty difficulty) {
-
+        Difficulty difficulty,
+        String gpxUrlFile) {
 
         @AssertTrue(message = "La lunghezza del percorso deve essere diversa da 0")
         private boolean isLengthNumberValid() {

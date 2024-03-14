@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import savoginEros.ParkprojectBE.entities.Hike;
 import savoginEros.ParkprojectBE.entities.User;
 import savoginEros.ParkprojectBE.exceptions.NotFoundException;
+import savoginEros.ParkprojectBE.payloads.hikes.GpxUrlFile;
 import savoginEros.ParkprojectBE.payloads.hikes.HikesPictureList;
 import savoginEros.ParkprojectBE.payloads.hikes.NewHikeDTO;
 import savoginEros.ParkprojectBE.payloads.users.Relation_User_Hike;
@@ -26,56 +27,53 @@ import java.util.regex.Pattern;
 
 @Service
 public class HikeService {
-
+    
     @Autowired
     private HikesDAO hikesDAO;
     @Autowired
     private UsersDAO usersDAO;
     @Autowired
     private Cloudinary cloudinary;
-
-
+    
+    
     // METODI
-
+    
     public Page<Hike> getAllHikes(int page, int size, String sort) {
-
+        
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Hike> hikePage = hikesDAO.findAll(pageable);
-
+        
         return hikePage;
     }
-
+    
     public Page<Hike> findByTitle(String partialTitle, int page, int size, String sort) {
-
+        
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-
+        
         return hikesDAO.findByTitleContainingIgnoreCase(partialTitle, pageable);
     }
-
+    
     public Hike getHikeById(long id) {
-        return hikesDAO.findById(id).orElseThrow( () -> new NotFoundException("Escursione", id));
+        return hikesDAO.findById(id).orElseThrow(() -> new NotFoundException("Escursione", id));
     }
-
-
+    
+    
     public Hike saveHike(NewHikeDTO hikeDTO) {
-        Hike hike = new Hike(
-                hikeDTO.title(),
-                hikeDTO.description(),
-                hikeDTO.duration(),
-                hikeDTO.length(),
-                hikeDTO.elevationGain(),
-                hikeDTO.trailNumber(),
-                hikeDTO.difficulty());
-
+        Hike hike = new Hike(hikeDTO.title(), hikeDTO.description(), hikeDTO.duration(), hikeDTO.length(), hikeDTO.elevationGain(), hikeDTO.trailNumber(), hikeDTO.difficulty());
+        
+        if (hikeDTO.gpxUrlFile() != null) {
+            hike.setGpxUrlFile(hikeDTO.gpxUrlFile());
+        }
+        
         if (hikeDTO.urlImagesList() != null) {
             hikeDTO.urlImagesList().forEach(urlString -> hike.getUrlImagesList().add(urlString));
         }
         return hikesDAO.save(hike);
     }
-
+    
     public Hike modifyHike(long id, NewHikeDTO hikeDTO) {
         Hike hike = getHikeById(id);
-
+        
         hike.setTitle(hikeDTO.title());
         hike.setDescription(hikeDTO.description());
         hike.setDuration(hikeDTO.duration());
@@ -83,7 +81,11 @@ public class HikeService {
         hike.setElevationGain(hikeDTO.elevationGain());
         hike.setTrailNumber(hikeDTO.trailNumber());
         hike.setDifficulty(hikeDTO.difficulty());
-
+        
+        if (hikeDTO.gpxUrlFile() != null) {
+            hike.setGpxUrlFile(hikeDTO.gpxUrlFile());
+        }
+        
         // MEMO
         // Per aggiungere o rimuovere foto dalla lista foto o mi faccio un end-point dedicato
         // oppure a ogni sua modifica elimino la lista precedente con la nuova lista di foto.
@@ -93,42 +95,47 @@ public class HikeService {
         }
         return hikesDAO.save(hike);
     }
-
-    public void deleteHike(long hikeId) {
-
+    
+    public void deleteHike(long hikeId, HikesPictureList pictureList) throws Exception {
+        
         Hike hike = getHikeById(hikeId);
-
+        
         //Set<User> userSet = new HashSet<>(hike.getUserSet());
         //userSet.forEach(user -> user.getFavoriteHikesSet().remove(hike));
-
+        
         hike.getUserList().forEach(user -> user.getFavoriteHikesList().remove(hike));
+        
+        deletePictures(hikeId, pictureList);
+        
+        deleteGpxUrl(hikeId);
+        
         hikesDAO.delete(hike);
     }
-
+    
     // AGGIUNTA AI PREFERITI
     public Relation_User_Hike addToFavourites(User user, long hikeId) {
-
+        
         Hike hike = getHikeById(hikeId);
-
+        
         if (!user.getFavoriteHikesList().contains(hike)) {
-        hike.getUserList().add(user);
-        hikesDAO.save(hike);
+            hike.getUserList().add(user);
+            hikesDAO.save(hike);
         }
         return new Relation_User_Hike(user.getId(), hike.getId());
     }
+    
     // RIMOZIONE DAI PREFERITI --------------
     public void removeFavourite(User user, long hikeId) {
-
+        
         Hike hike = getHikeById(hikeId);
-
+        
         user.getFavoriteHikesList().remove(hike);
         hike.getUserList().remove(user);
-
+        
         usersDAO.save(user);
     }
-
+    
     public static String extractPictureId(String input) {
-
         String regex = ".*/([^/]+)\\..*";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
@@ -138,81 +145,133 @@ public class HikeService {
             return null;
         }
     }
-
+    
+    public static String extractGpxFileId(String input) {
+        String regex = ".*/([^/]+)$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
+    
     public List<String> uploadListPictures(long hikeId, MultipartFile[] file) throws IOException {
-
+        
         Hike hike = getHikeById(hikeId);
-
+        
         Map<String, String> options = new HashMap<>();
         options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
-
+        
         for (int i = 0; i < file.length; i++) {
-
-        String url = (String) cloudinary.uploader().upload(file[i].getBytes(), options).get("url");
-        hike.getUrlImagesList().add(url);
+            
+            String url = (String) cloudinary.uploader().upload(file[i].getBytes(), options).get("url");
+            hike.getUrlImagesList().add(url);
         }
-
+        
         hikesDAO.save(hike);
-
+        
         return hike.getUrlImagesList();
-
+        
     }
-
-
+    
+    
     public List<String> deletePictures(long hikeId, HikesPictureList pictureList) throws Exception {
         // utilizzerò questo metodo sia nella DELETE di un'escursione si nella PUT di un'escursione
-
-            Hike hike = getHikeById(hikeId);
-
-            // numero url da eliminare
-            int urlNumbersToDelete = pictureList.hikesPictureList().size();
-
-            // numero url nella lista dell'escursione
-            int urlNumbers = hike.getUrlImagesList().size();
-
-
-
-            // eliminazione immagine default dalla lista se ci sono più foto di quelle che vogliamo eliminare
-            if (pictureList.hikesPictureList().contains("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp") && urlNumbers > urlNumbersToDelete) {
-                hike.getUrlImagesList().remove("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp");
-                // se voglio eliminare tutte le foto e non è presente quella di default la aggiungo
-                // oppure voglio eliminare l'unica foto presente e la seguente foto non corrisponde a quella di default, la aggiungo
-                // poi proseguo
-            } else if (!hike.getUrlImagesList().contains("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp") && urlNumbers == urlNumbersToDelete) { // aggiunta dell'immagine di default nel caso vengano eliminate tutte le immagini
-                hike.getUrlImagesList().add("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp");
-            }
-
-            // nel caso l'utente voglia eliminare l'unica foto esistente e che corrisponda a quella di default il filter blocca il proseguimento dell'eliminazione
-        List<String> imagesList = pictureList.hikesPictureList().stream().filter(
-                picture -> !picture.equals("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp")).toList();
-
+        
+        Hike hike = getHikeById(hikeId);
+        
+        // numero url da eliminare
+        int urlNumbersToDelete = pictureList.hikesPictureList().size();
+        
+        // numero url nella lista dell'escursione
+        int urlNumbers = hike.getUrlImagesList().size();
+        
+        
+        // eliminazione immagine default dalla lista se ci sono più foto di quelle che vogliamo eliminare
+        if (pictureList.hikesPictureList().contains("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp") && urlNumbers > urlNumbersToDelete) {
+            hike.getUrlImagesList().remove("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp");
+            // se voglio eliminare tutte le foto e non è presente quella di default la aggiungo
+            // oppure voglio eliminare l'unica foto presente e la seguente foto non corrisponde a quella di default, la aggiungo
+            // poi proseguo
+        } else if (!hike.getUrlImagesList().contains("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp") && urlNumbers == urlNumbersToDelete) { // aggiunta dell'immagine di default nel caso vengano eliminate tutte le immagini
+            hike.getUrlImagesList().add("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp");
+        }
+        
+        // nel caso l'utente voglia eliminare l'unica foto esistente e che corrisponda a quella di default il filter blocca il proseguimento dell'eliminazione
+        List<String> imagesList = pictureList.hikesPictureList().stream().filter(picture -> !picture.equals("https://res.cloudinary.com/diklzegyw/image/upload/v1708900889/Progetto_Parco/Galleria_Foto_Escursioni/placeholder_rsuiuy.webp")).toList();
+        
         if (!imagesList.isEmpty()) {
-
+            
             Map<String, String> options = new HashMap<>();
             options.put("folder", "Progetto_Parco/Galleria_Foto_Escursioni");
-
-            List<String> pictureIds = imagesList
-                .stream()
-                .map(string -> "Progetto_Parco/Galleria_Foto_Escursioni/" + extractPictureId(string))
-                .toList();
-
+            
+            List<String> pictureIds = imagesList.stream().map(string -> "Progetto_Parco/Galleria_Foto_Escursioni/" + extractPictureId(string)).toList();
+            
             System.out.println(pictureIds);
-
+            
             cloudinary.api().deleteResources(pictureIds, options);
-
+            
             hike.getUrlImagesList().removeAll(imagesList);
-
+            
             // Attenzione necessiti di un iteratore qui sotto
             /*hike.getUrlImagesList().forEach(string -> {
                 hike.getUrlImagesList().remove(string);
             });*/
-
+            
             //cloudinary.uploader().destroy("Progetto_Parco/Icone_Utenti/" + pictureId, ObjectUtils.emptyMap());
         }
-            hikesDAO.save(hike);
-
+        hikesDAO.save(hike);
+        
         return hike.getUrlImagesList();
-
+        
     }
-
+    
+    public String uploadFileGPX(long hikeId, MultipartFile fileGPX) throws IOException {
+        
+        Hike hike = getHikeById(hikeId);
+        
+        Map<String, String> options = new HashMap<>();
+        options.put("folder", "Progetto_Parco/File GPX");
+        options.put("resource_type", "auto"); // Imposta il tipo di risorsa automaticamente
+        options.put("format", "gpx"); // Specifica il formato del file come GPX
+        
+        String url = (String) cloudinary.uploader().upload(fileGPX.getBytes(), options).get("url");
+        
+        if (hike.getGpxUrlFile() != null) {
+            
+            System.out.println("sono dentro l'if");
+            
+            System.out.println(hike.getGpxUrlFile());
+            
+            String fileId = extractGpxFileId(hike.getGpxUrlFile()); // file != da immagini o video devono includere l'estensione nell'id
+            
+            System.out.println(fileId);
+            
+            cloudinary.uploader().destroy("Progetto_Parco/File GPX/" + fileId, ObjectUtils.asMap("resource_type", "raw"));
+        }
+        
+        hike.setGpxUrlFile(url);
+        hikesDAO.save(hike);
+        
+        return url;
+    }
+    
+    public void deleteGpxUrl(long hikeId) throws IOException {
+        
+        Hike hike = getHikeById(hikeId);
+        
+        if (hike.getGpxUrlFile() != null) {
+            
+            String fileId = extractGpxFileId(hike.getGpxUrlFile());
+            cloudinary.uploader().destroy("Progetto_Parco/File GPX/" + fileId, ObjectUtils.emptyMap());
+            
+            hike.setGpxUrlFile(null);
+        }
+        
+        hikesDAO.save(hike);
+        
+    }
+    
 }

@@ -40,6 +40,8 @@ public class Hike {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
+    private String gpxUrlFile;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_hike",
     joinColumns = @JoinColumn(name = "hike_id"),

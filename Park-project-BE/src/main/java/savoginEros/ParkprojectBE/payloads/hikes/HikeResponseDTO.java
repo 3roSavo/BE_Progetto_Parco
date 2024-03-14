@@ -15,6 +15,7 @@ public record HikeResponseDTO(
         int elevationGain,
         int trailNumber,
         Difficulty difficulty,
-        List<Long> usersIdList
+        List<Long> usersIdList,
+        String gpxUrlFile
 ) {
 }
